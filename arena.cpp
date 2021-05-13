@@ -164,6 +164,9 @@ State   GenerateMap() {
     state.info.sun[1] = 2;
     state.info.score[0] = 0;
     state.info.score[1] = 0;
+    state.info.player = 0;
+    state.info.wait[0] = 0;
+    state.info.wait[1] = 0;
 
     return state;
 }
@@ -557,8 +560,15 @@ double  exec(State s, const char* algo1, const char *algo2) {
 int     main(int argc, char **argv) {
     double victoire = 0;
 
+    // State t = GenerateMap();
+
+    // print_map(STDOUT_FILENO, t);
+    // print_update(STDOUT_FILENO, t);
+
+    // exit (0);
+
     if (argc != 3) {
-        std::cerr << "NEED TO PLAYER TO EXECUTE THE CODE" << std::endl;
+        std::cerr << "NEED TWO PLAYER TO EXECUTE THE CODE" << std::endl;
         return 0;
     }
 
@@ -571,6 +581,7 @@ int     main(int argc, char **argv) {
     std::cerr << argv[1] << " vs " << argv[2] << std::endl;
 
     for (int i = 0; i < 20; i++) {
+        // State s = parse_state(i);
         State s = GenerateMap();
         victoire += exec(s, p1.c_str(), p2.c_str());
         victoire += 1 - exec(s, p2.c_str(), p1.c_str());
