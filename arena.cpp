@@ -1,9 +1,3 @@
-#include <iostream>
-#include <stdexcept>
-#include <stdio.h>
-#include <string>
-
-
 #pragma GCC optimize("Ofast", "unroll-loops", "inline")
 #pragma GCC option("arch=native", "tune=native")
 #define NDEBUG
@@ -15,6 +9,7 @@
 #include <chrono>
 #include <random>
 #include <array>
+#include <string>
 #include <sstream>
 #include <algorithm>
 #include <functional>
@@ -28,8 +23,8 @@
 
 //g++ -std=c++11 simulation.cpp arena.cpp -o arena
 
-std::vector<std::string>>   players(std::string p1)  {
-
+std::vector<std::string>    players(std::string p1)  {
+    return {""};
 }
 
 State   GenerateMap() {
@@ -285,6 +280,7 @@ static void    print_map(int fd, State& s) {
         dprintf(fd, "\n");
 	}
 }
+
 static void     print_update(int fd, State& s) {
     int player = s.info.player;
     
@@ -382,21 +378,29 @@ double  exec(State& s, const char* algo1, const char *algo2) {
 	char buffer[128];
 	int len = 0;
 	while (!s.final_state()) {
-		print_update(outpipefd_algo1[1], s);
-		len = read(inpipefd_algo1[0], buffer, 128);
-		buffer[len] = '\0';
+        if (!s.info.wait[0]) {
+            print_update(outpipefd_algo1[1], s);
+            len = read(inpipefd_algo1[0], buffer, 128);
+            buffer[len] = '\0';
 
-		Action algo1_action = extract_action(buffer);
-		algo1_action.cost = get_cost(s, algo1_action);
-		s.do_action(algo1_action);
+            Action algo1_action = extract_action(buffer);
+            algo1_action.cost = get_cost(s, algo1_action);
+            s.do_action(algo1_action);
+        } else {
+            s.do_action({Action_type::wait, 0, 0, 0});
+        }
+        if (!s.info.wait[1]) {
+            print_update(outpipefd_algo2[1], s);
+            len = read(inpipefd_algo2[0], buffer, 128);
+            buffer[len] = '\0';
 
-		print_update(outpipefd_algo2[1], s);
-		len = read(inpipefd_algo2[0], buffer, 128);
-		buffer[len] = '\0';
+            Action algo2_action = extract_action(buffer);
+            algo2_action.cost = get_cost(s, algo2_action);
+            s.do_action(algo2_action);
+        } else {
+            s.do_action({Action_type::wait, 0, 0, 0});
+        }
 
-		Action algo2_action = extract_action(buffer);
-		algo2_action.cost = get_cost(s, algo2_action);
-		s.do_action(algo2_action);
 	}
 
 	kill(pid, SIGKILL);
@@ -433,7 +437,7 @@ int     main(int argc, char **argv) {
     }
     for (int i = 0; i < 20; i++) {
         State s = parse_state(i);
-        victoire += exec(s, p2.c_str(), p1.c_str());
+        victoire += 1 - exec(s, p2.c_str(), p1.c_str());
     }
     std::cout << argv[1] << " : " << victoire  << " " << argv[2] << " : " << 40 - victoire << std::endl;
 
