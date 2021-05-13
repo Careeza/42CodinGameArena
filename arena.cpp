@@ -15,22 +15,157 @@
 #include <functional>
 #include <fstream>
 #include <string>
-#include "common.hpp"
 
 #include <sys/wait.h>
 #include <signal.h>
 #include <stdlib.h>
 
+#include "common.hpp"
 //g++ -std=c++11 simulation.cpp arena.cpp -o arena
+
+# define MAX_EMPTY_CELLS 10
+# define MAX_TREES 4
 
 std::vector<std::string>    players(std::string p1)  {
     return {""};
 }
 
-State   GenerateMap() {
-    State s;
+int     get_opp(int pos) {
+    int opp_pos;
 
-    return s;
+    if (pos == 0) {
+        opp_pos = 0;
+    } else if (pos <= 6) {
+        opp_pos = pos + 3;
+        if (opp_pos > 6) {
+            opp_pos -= 6;
+        }
+    } else if (pos <= 18) {
+        opp_pos = pos + 6;
+        if (opp_pos > 18) {
+            opp_pos -= 12;
+        }
+    } else {
+        opp_pos = pos + 9;
+        if (opp_pos > 36) {
+            opp_pos -= 18;
+        }
+    }
+    return opp_pos;
+}
+
+int     next_coord(int pos) {
+    int next_coord;
+
+    if (pos == 0) {
+        next_coord = 0;
+    } else if (pos <= 6) {
+        next_coord = pos + 1;
+        if (next_coord > 6) {
+            next_coord = 1;
+        }
+    } else if (pos <= 18) {
+        next_coord = pos + 1;
+        if (next_coord > 18) {
+            next_coord = 7;
+        }
+    } else {
+        next_coord = pos + 1;
+        if (next_coord > 36) {
+            next_coord = 19;
+        }
+    }
+    return next_coord;
+}
+
+int     prev_coord(int pos) {
+    int next_coord;
+
+    if (pos == 0) {
+        next_coord = 0;
+    } else if (pos <= 6) {
+        next_coord = pos - 1;
+        if (next_coord < 1) {
+            next_coord = 6;
+        }
+    } else if (pos <= 18) {
+        next_coord = pos - 1;
+        if (next_coord < 7) {
+            next_coord = 18;
+        }
+    } else {
+        next_coord = pos - 1;
+        if (next_coord < 19) {
+            next_coord = 36;
+        }
+    }
+    return next_coord;
+}
+
+State   GenerateMap() {
+    State state;
+
+    state.grid[0] = {3};
+    for (int i = 0; i < 36; i++) {
+        int pos = n[0].neigbours[i];
+        state.grid[pos].empty = true;
+        if (i < 6) {
+            state.grid[pos].richness = 3;
+        } else if (i < 18) {
+            state.grid[pos].richness = 2;
+        } else {
+            state.grid[pos].richness = 1;
+        }
+    }
+
+    int wantedEmptyCells = random_index(0, MAX_EMPTY_CELLS);
+    int actualEmptyCells = 0;
+
+    state.info.trees_size.fill({0, 0, 0, 0});
+    state.info.trees_richness.fill({0, 0, 0});
+
+    while (actualEmptyCells < wantedEmptyCells - 1) {
+        int coord = random_index(0, 37);
+
+        if (state.grid[coord].richness != 0) {
+            state.grid[coord].richness = 0;
+            state.grid[get_opp(coord)].richness = 0;
+
+            actualEmptyCells += 2;
+        }
+    }
+
+    int actualTree = 0;
+    while (actualTree < MAX_TREES) {
+        int coord = random_index(n[0].size[1] + 1, n[0].size[2]);
+
+        if (!state.grid[next_coord(coord)].empty || !state.grid[prev_coord(coord)].empty)
+            continue;
+        if (!state.grid[next_coord(next_coord(coord))].empty || !state.grid[prev_coord(prev_coord(coord))].empty)
+            continue;
+
+        if (state.grid[coord].richness != 0 and state.grid[coord].empty) {
+            state.info.trees_size[0][1] += 1;
+            state.info.trees_size[1][1] += 1;
+            state.grid[coord].size = 1;
+            state.grid[get_opp(coord)].size = 1;
+            state.grid[coord].empty = false;
+            state.grid[get_opp(coord)].empty = false;
+            state.grid[coord].player = 0;
+            state.grid[get_opp(coord)].player = 1;
+
+
+            actualTree += 2;
+        }
+    }
+    state.info.nutriments = 20;
+    state.info.days = 0;
+    state.info.sun[0] = 2;
+    state.info.sun[1] = 2;
+    state.info.score[0] = 0;
+    state.info.score[1] = 0;
+
+    return state;
 }
 
 int		get_cost(State &s, Action a) {
@@ -323,7 +458,9 @@ static void     print_update(int fd, State& s) {
 	}
 }
 
-double  exec(State& s, const char* algo1, const char *algo2) {
+std::ofstream log_flux("log.txt");
+
+double  exec(State s, const char* algo1, const char *algo2) {
     pid_t pid = 0;
     pid_t pid2 = 0;
     int inpipefd_algo1[2];
@@ -408,6 +545,8 @@ double  exec(State& s, const char* algo1, const char *algo2) {
     waitpid(pid, &status, 0);
     waitpid(pid2, &status, 0);
 
+    log_flux << algo1 << " : " << s.info.score[0] << " vs " << algo2 << " : " << s.info.score[1] << std::endl;
+
     if (s.info.score[0] > s.info.score[1])
         return 1;
     if (s.info.score[0] == s.info.score[1])
@@ -432,11 +571,8 @@ int     main(int argc, char **argv) {
     std::cerr << argv[1] << " vs " << argv[2] << std::endl;
 
     for (int i = 0; i < 20; i++) {
-        State s = parse_state(i);
+        State s = GenerateMap();
         victoire += exec(s, p1.c_str(), p2.c_str());
-    }
-    for (int i = 0; i < 20; i++) {
-        State s = parse_state(i);
         victoire += 1 - exec(s, p2.c_str(), p1.c_str());
     }
     std::cout << argv[1] << " : " << victoire  << " " << argv[2] << " : " << 40 - victoire << std::endl;

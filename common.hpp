@@ -13,12 +13,14 @@
 int random_index(int lower, int higher);
 
 struct Cell {
-	bool			player : 1; // player of ?
-	bool			sleep : 1; // sleeping
-	bool			empty : 1; // vide or not
-	unsigned char	size : 2; // 0 to 3
-	unsigned char	richness : 2; // 0 to 3
-	bool			info : 1; // info supplementaire bool dispo
+	bool			player; // player of ?
+	bool			sleep; // sleeping
+	bool			empty; // vide or not
+	unsigned char	size; // 0 to 3
+	unsigned char	richness; // 0 to 3
+	bool			info; // info supplementaire bool dispo
+	Cell(int r) : richness(r), empty(true), sleep(false), player(false) {}
+	Cell() : empty(true), sleep(false), player(false) {}
 }; // TAILLE TOTAL 1 Octet = taille char
 struct	Info {
 	bool			player;
