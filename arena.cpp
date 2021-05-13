@@ -26,6 +26,11 @@
 #include <signal.h>
 #include <stdlib.h>
 
+//g++ -std=c++11 simulation.cpp arena.cpp -o arena
+
+std::vector<std::string>>   players(std::string p1)  {
+
+}
 
 State   GenerateMap() {
     State s;
