@@ -5,3 +5,4 @@ arena
 arena.o
 simulation.o
 .vscode
+log/
