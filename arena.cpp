@@ -537,8 +537,8 @@ double  exec(State s, const char* algo1, const char *algo2) {
     int score_p1 = s.info.score[0] + s.info.sun[0] / 3;
     int score_p2 = s.info.score[1] + s.info.sun[1] / 3;
 
-
     score_log << algo1 << " : " << score_p1 << " vs " << algo2 << " : " << score_p2 << std::endl;
+
     if (score_p1 > score_p2) {
         return 1;
     } else if (score_p1 == score_p2) {
@@ -563,7 +563,7 @@ void    match(std::string p1_name, std::string p2_name) {
     std::string log_socre_str = "log/" + p1_name + p2_name + "score.txt";
 
     score_log.open(log_socre_str);
-    std::string p1_exec = "./opponents/" + p1_name;
+    std::string p1_exec = "./player/" + p1_name;
     std::string p2_exec = "./opponents/" + p2_name;
     printf("%s", CSI_WHITE);
     std::cout << std::setw(58);
