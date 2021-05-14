@@ -1,7 +1,6 @@
-# 42CodinGameArena
-<h1> minishell_unit_test </h1>
+# 42CodinGameArena - CodinGame Spring Challenge 2021
 
-Local arena to test your code against everyone else
+Local arena to test your code against everyone else's
 
 </br>
 
@@ -11,38 +10,30 @@ The arena was made to compile on Mac.
 
 <h2> Installation </h2>
 
-+ Clone the repository and Make, and executable `arena` will be created and player object files in `playerObject/` will be turned into executables
++ Clone the repository, then Make; an executable `arena` will be created and player object files in `playerObject/` will be turned into executables
++ The executable of each player will be in `player/`, you may want to copy the bots you're interested to fight against to `opponent/`
 
 <h2> Usage </h2>
 
-`./arena <your_executable> <opponent_executable1> <opponent_executable2> ... 2> /dev/null` to confront your executable against all other executables passed as parameter, as many times as specified on the `PLAYOUT define` of arena.cpp (`2> /dev/null` to get rid of the stderr output
+`./arena your_executable opponent_executable1 opponent_executable2 ... 2> /dev/null` to confront your executable against all other executables passed as parameter, as many times as specified on the `#define PLAYOUT` on arena.cpp (`2> /dev/null` to get rid of the stderr output)
 
-<img  src="https://github.com/martingarcialopez/42CodinGameArena/.images/arena2.png" width="50%"/>
+<img src="https://github.com/martingarcialopez/42CodinGameArena/blob/main/.images/arena2.png" width="100%" />
 
-`./arena <your_executable>` to confront your executable against all other executables in `opponent/`
+`./arena your_executable` to confront your executable against all other executables in `opponent/`
 
-+ <h3> Options </h3>
+<img src="https://github.com/martingarcialopez/42CodinGameArena/blob/main/.images/arena1.png" width="100%" />
 
-  `--no-error` or `-n` Does not test the stderr output, which is tested by default
-
-  </br>
   
-  You can run tests of a given section by doing:
+<h2> What we need from you </h2>
 
-  `--<test_section_name>` e.g. `--builtins` Only errors in these tests will be written in the log file. Note that you can combine them
+We need you to compile your arena code to an object file (with the flag `-arch x86_64`) and to do a Pull Request to playerObject/your_login.o
 
-  > ./unit_test.sh --n --builtins --quotes
+The idea is to have plenty of bots there to do some serious benchmarking, and therefore to boost the school performance during the last days of challenge
 
-  will only run the builtins and quotes tests and won't test the stderr output
+</br>
+<h3> Player Compile </h3>
 
-  </br>
-  
-  `--help` or `-h` Shows the script usage, mainly the names of each test section and its abreviation
-  
-  
-<h2> Behaviour </h2>
+To work in your code and see the results of your changes in real time you propably want to have your source code in the arena (locally). You can place your source `login.cpp` in `compilePlayer/`, and then Make will compile that, update your object and create the appropiate executable. 
+Make will try to compile your source as C++, you will need to change the Makefile if you code in another language 
 
-+ For each test, stdout and stderr of your minishell and real bash will be compared, along with their return codes.
-For a test to be passed, you need to have the same return code of bash, as well as the same output in the stdout.
-
-+ If the stderr differs, you will see [FAIL] on the stderr column, but that won't affect the previous result of the test. If the stderr is empty or if it doesn't differs, stderr column will be empty.
+`/!\ There is already a .gitignore, so you cannot push your source code to the arena by error /!\`
