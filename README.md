@@ -17,11 +17,11 @@ The arena was made to compile on Mac.
 
 `./arena your_executable opponent_executable1 opponent_executable2 ... 2> /dev/null` to confront your executable against all other executables passed as parameter, as many times as specified on the `#define PLAYOUT` on arena.cpp (`2> /dev/null` to get rid of the stderr output)
 
-<img src="https://github.com/martingarcialopez/42CodinGameArena/blob/main/.images/arena2.png" width="100%" />
+<img src="https://github.com/Careeza/42CodinGameArena/blob/main/.images/arena2.png" width="100%" />
 
 `./arena your_executable` to confront your executable against all other executables in `opponents/`
 
-<img src="https://github.com/martingarcialopez/42CodinGameArena/blob/main/.images/arena1.png" width="100%" />
+<img src="https://github.com/Careeza/42CodinGameArena/blob/main/.images/arena1.png" width="100%" />
 
   
 <h2> What we need from you </h2>
