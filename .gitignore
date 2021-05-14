@@ -1,6 +1,7 @@
+player/
+opponents/
 compilePlayer/
 arena
-log/
 arena.o
 simulation.o
 .vscode
