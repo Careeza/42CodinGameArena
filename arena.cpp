@@ -4,7 +4,7 @@
 #include <dirent.h>
 #include <signal.h>
 
-# define PLAYOUT 100
+# define PLAYOUT 20
 
 # define CSI "\033["
 # define CSI_GREEN CSI "32;01m"
@@ -16,11 +16,6 @@
 
 # define MAX_EMPTY_CELLS 10
 # define MAX_TREES 4
-
-std::vector<std::string>    players(std::string p1)  {
-    return {""};
-}
-
 
 int     get_opp(int pos) {
     int opp_pos;
@@ -594,7 +589,7 @@ std::vector<std::string>    get_oppenents(std::string p1) {
     {
         std::string new_opponent = entry->d_name;
 
-        if (new_opponent.compare(".") == 0 or new_opponent.compare("..") == 0 or new_opponent.compare(p1) == 0)
+        if (new_opponent.compare(".") == 0 or new_opponent.compare("..") == 0 or new_opponent.compare(p1) == 0 or new_opponent.compare(".empty") == 0)
             continue;
         opponents.push_back(new_opponent);
     }
@@ -613,7 +608,10 @@ int     main(int argc, char **argv) {
             match(argv[1], argv[i]);
         }
     } else {
-        std::cerr << "./usage" << std::endl;
+        printf("%s", CSI_RED);
+        std::cerr << "Usage : ./arena exe\t\t\t(launch the exe vs all the other exe in player folder)" << std::endl;
+        std::cerr << "        ./arena exe1 exe2 exe3 ..\t(launch the exe1 vs exe2, exe3, ...)" << std::endl;
+        printf("%s", CSI_RESET);
     }
     return 0;
 }
