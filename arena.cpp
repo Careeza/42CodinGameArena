@@ -534,13 +534,27 @@ double  exec(State s, const char* algo1, const char *algo2) {
     waitpid(pid, &status, 0);
     waitpid(pid2, &status, 0);
 
-    score_log << algo1 << " : " << s.info.score[0] << " vs " << algo2 << " : " << s.info.score[1] << std::endl;
+    int score_p1 = s.info.score[0] + s.info.sun[0] / 3;
+    int score_p2 = s.info.score[1] + s.info.sun[1] / 3;
 
-    if (s.info.score[0] > s.info.score[1])
+
+    score_log << algo1 << " : " << score_p1 << " vs " << algo2 << " : " << score_p2 << std::endl;
+    if (score_p1 > score_p2) {
         return 1;
-    if (s.info.score[0] == s.info.score[1])
-        return 0.5;
-    return 0;
+    } else if (score_p1 == score_p2) {
+        int nb_treeP1 = s.info.trees_size[0][0] + s.info.trees_size[0][1] + s.info.trees_size[0][2] + s.info.trees_size[0][3];
+        int nb_treeP2 = s.info.trees_size[1][0] + s.info.trees_size[1][1] + s.info.trees_size[1][2] + s.info.trees_size[1][3];
+
+        if (nb_treeP1 > nb_treeP2)
+            return 1;
+        else if (nb_treeP1 == nb_treeP2) {
+            return 0.5;
+        } else {
+            return 0;
+        }
+    } else {
+        return 0;
+    }
 }
 
 void    match(std::string p1_name, std::string p2_name) {
