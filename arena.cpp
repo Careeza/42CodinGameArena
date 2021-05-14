@@ -15,12 +15,13 @@
 #include <functional>
 #include <fstream>
 #include <string>
+#include <dirent.h>
 
 #include <sys/wait.h>
 #include <signal.h>
 #include <stdlib.h>
 
-#include "common.hpp"
+#include "simulation.hpp"
 //g++ -std=c++11 simulation.cpp arena.cpp -o arena
 
 # define MAX_EMPTY_CELLS 10
@@ -557,36 +558,51 @@ double  exec(State s, const char* algo1, const char *algo2) {
     return 0;
 }
 
-int     main(int argc, char **argv) {
+void    match(std::string p1_name, std::string p2_name) {
     double victoire = 0;
 
-    // State t = GenerateMap();
-
-    // print_map(STDOUT_FILENO, t);
-    // print_update(STDOUT_FILENO, t);
-
-    // exit (0);
-
-    if (argc != 3) {
-        std::cerr << "NEED TWO PLAYER TO EXECUTE THE CODE" << std::endl;
-        return 0;
-    }
-
-    std::string p1 = argv[1];
-    std::string p2 = argv[2];
-
-    p1 = "./player/" + p1;
-    p2 = "./player/" + p2;
-
-    std::cerr << argv[1] << " vs " << argv[2] << std::endl;
-
+    std::string p1_exec = "./opponents/" + p1_name;
+    std::string p2_exec = "./opponents/" + p2_name;
+    std::cout << p1_name << " vs " << p2_name << std::endl;
     for (int i = 0; i < 20; i++) {
         // State s = parse_state(i);
         State s = GenerateMap();
-        victoire += exec(s, p1.c_str(), p2.c_str());
-        victoire += 1 - exec(s, p2.c_str(), p1.c_str());
+        victoire += exec(s, p1_exec.c_str(), p2_exec.c_str());
+        victoire += 1 - exec(s, p2_exec.c_str(), p1_exec.c_str());
     }
-    std::cout << argv[1] << " : " << victoire  << " " << argv[2] << " : " << 40 - victoire << std::endl;
+    std::cout << p1_name << " : " << victoire  << " " << p2_name << " : " << 40 - victoire << std::endl;
+}
+
+std::vector<std::string>    get_oppenents(std::string p1) {
+    DIR *folder;
+    struct dirent *entry;
+    std::vector<std::string>    opponents;
+
+    folder = opendir("opponents");
+
+    while( (entry=readdir(folder)) )
+    {
+        std::string new_opponent = entry->d_name;
+
+        if (new_opponent.compare(".") == 0 or new_opponent.compare("..") == 0 or new_opponent.compare(p1) == 0)
+            continue;
+        opponents.push_back(new_opponent);
+    }
+    return opponents;
+}
+
+int     main(int argc, char **argv) {
+    if (argc == 3) {
+        match(argv[1], argv[2]);
+    } else if (argc == 2) {
+        std::vector<std::string> opponents = get_oppenents(argv[1]);
+        for (std::string opponent : opponents) {
+            match(argv[1], opponent);
+        }
+    } else {
+        std::cerr << "./usage" << std::endl;
+    }
+    return 0;
 }
 
 

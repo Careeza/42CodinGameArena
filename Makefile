@@ -20,15 +20,14 @@ OBJS	= ${SRCS:.cpp=.o}
 player/%: playerObject/%.o
 		${CC} ${CFLAGS} -arch x86_64 -o $@ $<
 
-playerObject/%.o: compilePlayer/%.cpp
+playerObject/%.o: compilePlayer/%.cpp 
 		${CC} ${CFLAGS} -c -arch x86_64 -o $@ $<
 
-${NAME}:	${OBJS}
-			${CC} ${CFLAGS} ${OBJS} -o ${NAME}
+${NAME}: ${OBJS}
+	${CC} ${CFLAGS} ${OBJS} -o ${NAME}
 
-all:	${NAME} ${PL_EXEC}
+all: ${PL_NEW_OBJ} ${PL_EXEC} ${NAME}
 
-new_player:	${PL_NEW_OBJ}
 
 clean:
 	rm -rf ${PL_EXEC}

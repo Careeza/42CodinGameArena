@@ -1,4 +1,4 @@
-#include "common.hpp"
+#include "simulation.hpp"
 
 std::mt19937 gen(std::random_device{}());
 int random_index(int lower, int higher) {

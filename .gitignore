@@ -1,5 +1,6 @@
 player/
 opponents/
+compilePlayer/
 arena
 log.txt
 arena.o
