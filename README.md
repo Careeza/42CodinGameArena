@@ -11,7 +11,7 @@ The arena was made to compile on Mac.
 <h2> Installation </h2>
 
 + Clone the repository, then Make; an executable `arena` will be created and player object files in `playerObject/` will be turned into executables
-+ The executable of each player will be in `player/`, you may want to copy the bots you're interested to fight against to `opponent/`
++ The executable of each player will be in `player/`, you may want to copy the bots you're interested to fight against to `opponents/`
 
 <h2> Usage </h2>
 
@@ -19,7 +19,7 @@ The arena was made to compile on Mac.
 
 <img src="https://github.com/martingarcialopez/42CodinGameArena/blob/main/.images/arena2.png" width="100%" />
 
-`./arena your_executable` to confront your executable against all other executables in `opponent/`
+`./arena your_executable` to confront your executable against all other executables in `opponents/`
 
 <img src="https://github.com/martingarcialopez/42CodinGameArena/blob/main/.images/arena1.png" width="100%" />
 
