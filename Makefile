@@ -2,8 +2,10 @@ NAME	= arena
 
 SRCS	= arena.cpp simulation.cpp
 
+PL_CPP = $(wildcard compilePlayer/*.cpp)
 PL_OBJ = $(wildcard playerObject/*.o)
 
+PL_NEW_OBJ = $(patsubst compilePlayer/%.cpp, playerObject/%.o, $(PL_CPP))
 PL_EXEC = $(patsubst playerObject/%.o, player/%, $(PL_OBJ))
 
 CC		= clang++
@@ -16,12 +18,17 @@ OBJS	= ${SRCS:.cpp=.o}
 	${CC} ${CFLAGS} -c $< -o ${<:.cpp=.o}
 
 player/%: playerObject/%.o
-		${CC} ${CFLAGS} -o $@ $<
+		${CC} ${CFLAGS} -arch x86_64 -o $@ $<
+
+playerObject/%.o: compilePlayer/%.cpp
+		${CC} ${CFLAGS} -c -arch x86_64 -o $@ $<
 
 ${NAME}:	${OBJS}
 			${CC} ${CFLAGS} ${OBJS} -o ${NAME}
 
 all:	${NAME} ${PL_EXEC}
+
+new_player:	${PL_NEW_OBJ}
 
 clean:
 	rm -rf ${PL_EXEC}

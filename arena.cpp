@@ -587,7 +587,6 @@ int     main(int argc, char **argv) {
         victoire += 1 - exec(s, p2.c_str(), p1.c_str());
     }
     std::cout << argv[1] << " : " << victoire  << " " << argv[2] << " : " << 40 - victoire << std::endl;
-
 }
 
 

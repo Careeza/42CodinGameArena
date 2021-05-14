@@ -1,0 +1,7 @@
+player/
+opponents/
+arena
+log.txt
+arena.o
+simulation.o
+.vscode
