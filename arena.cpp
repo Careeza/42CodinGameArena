@@ -1,28 +1,18 @@
-#pragma GCC optimize("Ofast", "unroll-loops", "inline")
-#pragma GCC option("arch=native", "tune=native")
-#define NDEBUG
-
-#include <stdexcept>
-#include <stdio.h>
-#include <iostream>
-#include <unistd.h>
-#include <chrono>
-#include <random>
-#include <array>
-#include <string>
-#include <sstream>
-#include <algorithm>
-#include <functional>
-#include <fstream>
-#include <string>
-#include <dirent.h>
-
-#include <sys/wait.h>
-#include <signal.h>
-#include <stdlib.h>
-
 #include "simulation.hpp"
-//g++ -std=c++11 simulation.cpp arena.cpp -o arena
+
+#include <iostream>
+#include <dirent.h>
+#include <signal.h>
+
+# define PLAYOUT 100
+
+# define CSI "\033["
+# define CSI_GREEN CSI "32;01m"
+# define CSI_WHITE CSI "37;01m"
+# define CSI_BLUE CSI "34;01m"
+# define CSI_YELLOW CSI "33;01m"
+# define CSI_RED CSI "31m"
+# define CSI_RESET CSI "0m"
 
 # define MAX_EMPTY_CELLS 10
 # define MAX_TREES 4
@@ -30,6 +20,7 @@
 std::vector<std::string>    players(std::string p1)  {
     return {""};
 }
+
 
 int     get_opp(int pos) {
     int opp_pos;
@@ -224,7 +215,6 @@ Action	extract_action(std::string str) {
 			a.type = Action_type::complete;
 			break;
 	}
-	
 	return a;
 }
 
@@ -462,7 +452,7 @@ static void     print_update(int fd, State& s) {
 	}
 }
 
-std::ofstream log_flux("log.txt");
+std::ofstream   score_log;
 
 double  exec(State s, const char* algo1, const char *algo2) {
     pid_t pid = 0;
@@ -549,7 +539,7 @@ double  exec(State s, const char* algo1, const char *algo2) {
     waitpid(pid, &status, 0);
     waitpid(pid2, &status, 0);
 
-    log_flux << algo1 << " : " << s.info.score[0] << " vs " << algo2 << " : " << s.info.score[1] << std::endl;
+    score_log << algo1 << " : " << s.info.score[0] << " vs " << algo2 << " : " << s.info.score[1] << std::endl;
 
     if (s.info.score[0] > s.info.score[1])
         return 1;
@@ -561,16 +551,36 @@ double  exec(State s, const char* algo1, const char *algo2) {
 void    match(std::string p1_name, std::string p2_name) {
     double victoire = 0;
 
+    std::string log_socre_str = "log/" + p1_name + p2_name + "score.txt";
+
+    score_log.open(log_socre_str);
     std::string p1_exec = "./opponents/" + p1_name;
     std::string p2_exec = "./opponents/" + p2_name;
+    printf("%s", CSI_WHITE);
+    std::cout << std::setw(58);
     std::cout << p1_name << " vs " << p2_name << std::endl;
-    for (int i = 0; i < 20; i++) {
-        // State s = parse_state(i);
+    printf("%s", CSI_RESET);
+
+    for (int i = 0; i < PLAYOUT; i++) {
         State s = GenerateMap();
         victoire += exec(s, p1_exec.c_str(), p2_exec.c_str());
         victoire += 1 - exec(s, p2_exec.c_str(), p1_exec.c_str());
+
+        int nb_partie = 2 * (i + 1); 
+
+        int ratio_p1 = victoire * 100 / nb_partie;
+        int ratio_p2 = 100 - ratio_p1;
+
+        std::string ratio_p1_str(ratio_p1, '#');
+        std::string ratio_p2_str(ratio_p2, '#');
+
+        printf("\r%s %.1f %s%s %s%s%s%s%s%s %s%s %.1f%s", CSI_WHITE, victoire, p1_name.c_str(), CSI_RESET, CSI_GREEN, ratio_p1_str.c_str(), CSI_RESET, CSI_RED, ratio_p2_str.c_str(), CSI_RESET, CSI_WHITE, p2_name.c_str(), (nb_partie - victoire), CSI_RESET);
+        fflush(stdout);
     }
-    std::cout << p1_name << " : " << victoire  << " " << p2_name << " : " << 40 - victoire << std::endl;
+    printf("%s", CSI_WHITE);
+    std::cout << std::setw(56);
+    std::cout << std::endl << p1_name << " : " << victoire  << " " << p2_name << " : " << PLAYOUT * 2 - victoire << std::endl << std::endl;
+    printf("%s", CSI_RESET);
 }
 
 std::vector<std::string>    get_oppenents(std::string p1) {
@@ -592,24 +602,18 @@ std::vector<std::string>    get_oppenents(std::string p1) {
 }
 
 int     main(int argc, char **argv) {
-    if (argc == 3) {
-        match(argv[1], argv[2]);
-    } else if (argc == 2) {
+
+    if (argc == 2) {
         std::vector<std::string> opponents = get_oppenents(argv[1]);
         for (std::string opponent : opponents) {
             match(argv[1], opponent);
+        }
+    } else if (argc > 2) {
+        for (int i = 2; i < argc; i++) {
+            match(argv[1], argv[i]);
         }
     } else {
         std::cerr << "./usage" << std::endl;
     }
     return 0;
 }
-
-
-
-// int     main(void) {
-
-
-//     std::cout << exec("./algo1") << std::endl;
-//     return 0;
-// }

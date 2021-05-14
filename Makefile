@@ -14,6 +14,8 @@ CFLAGS	= -Ofast -std=c++11
 
 OBJS	= ${SRCS:.cpp=.o}
 
+all: ${PL_NEW_OBJ} ${PL_EXEC} ${NAME}
+
 .cpp.o:
 	${CC} ${CFLAGS} -c $< -o ${<:.cpp=.o}
 
@@ -25,9 +27,6 @@ playerObject/%.o: compilePlayer/%.cpp
 
 ${NAME}: ${OBJS}
 	${CC} ${CFLAGS} ${OBJS} -o ${NAME}
-
-all: ${PL_NEW_OBJ} ${PL_EXEC} ${NAME}
-
 
 clean:
 	rm -rf ${PL_EXEC}
